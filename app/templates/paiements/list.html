@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block titre %}Paiements{% endblock %}
+{% block contenu %}
+
+{% if mode_paiement %}
+    {% set paiement = paiements[0] %}
+    <h1 style="color:var(--orange-fonce);">Encaisser le paiement</h1>
+
+    <div class="form-card">
+        <p><strong>Locataire :</strong> {{ paiement.location.locataire.nom_complet }}</p>
+        <p><strong>Chambre :</strong> {{ paiement.location.chambre.numero }}</p>
+        <p><strong>Loyer mensuel :</strong> {{ paiement.location.chambre.loyer_mensuel }} FCFA</p>
+
+        <form method="POST" novalidate id="form-paiement">
+            {{ form.hidden_tag() }}
+
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight:600;">
+                    {{ form.nombre_mois.label.text }}
+                </label>
+                {{ form.nombre_mois(class="form-control", id="nombre_mois", min="1", max="12",
+                   style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--orange-pale);") }}
+                {% if form.nombre_mois.errors %}
+                    <span style="color:red; font-size:0.85rem;">{{ form.nombre_mois.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight:600;">
+                    {{ form.mois.label.text }}
+                </label>
+                {{ form.mois(class="form-control", id="mois_depart",
+                   style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--orange-pale);") }}
+                {% if form.mois.errors %}
+                    <span style="color:red; font-size:0.85rem;">{{ form.mois.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Récapitulatif dynamique -->
+            <div id="recap-paiement" style="background:var(--orange-pale); border-radius:10px; padding:1rem; margin:1rem 0;">
+                <div style="color:var(--texte-secondaire); font-size:0.85rem; margin-bottom:0.4rem;">Récapitulatif</div>
+                <div id="recap-mois" style="font-size:0.9rem; margin-bottom:0.5rem;"></div>
+                <div style="font-size:1.3rem; font-weight:700; color:var(--orange-fonce);">
+                    Total : <span id="recap-total">—</span>
+                </div>
+            </div>
+
+            <div style="margin-bottom:1rem;">
+                <label style="display:block; margin-bottom:0.4rem; font-weight:600;">
+                    {{ form.mode_paiement.label.text }}
+                </label>
+                {{ form.mode_paiement(class="form-control",
+                   style="width:100%; padding:0.5rem; border-radius:8px; border:1px solid var(--orange-pale);") }}
+            </div>
+
+            <div style="margin-top:1.5rem; display:flex; gap:0.6rem;">
+                {{ form.submit(class="btn-locagest") }}
+                <a href="{{ url_for('paiements.list_paiements') }}" class="btn-outline-locagest">Annuler</a>
+            </div>
+        </form>
+    </div>
+{% else %}
+
+<div class="barre-actions">
+    <h1 style="color:var(--orange-fonce); margin:0;">Paiements</h1>
+</div>
+
+<div class="barre-filtres">
+    <a href="{{ url_for('paiements.list_paiements') }}" class="btn-outline-locagest" style="{% if filtre=='toutes' %}background:var(--orange-pale);{% endif %}">Tous</a>
+    <a href="{{ url_for('paiements.list_paiements', statut='en_attente') }}" class="btn-outline-locagest" style="{% if filtre=='en_attente' %}background:var(--orange-pale);{% endif %}">En attente</a>
+    <a href="{{ url_for('paiements.list_paiements', statut='paye') }}" class="btn-outline-locagest" style="{% if filtre=='paye' %}background:var(--orange-pale);{% endif %}">Payés</a>
+    <a href="{{ url_for('paiements.list_paiements', statut='en_retard') }}" class="btn-outline-locagest" style="{% if filtre=='en_retard' %}background:var(--orange-pale);{% endif %}">En retard</a>
+</div>
+
+{% if paiements %}
+<div class="table-responsive">
+<table class="table-locagest">
+    <thead>
+        <tr><th>Locataire</th><th>Chambre</th><th>Mois</th><th>Échéance</th><th>Montant</th><th>Statut</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for p in paiements %}
+        <tr class="{{ 'ligne-retard' if p.est_en_retard else '' }}">
+            <td>{{ p.location.locataire.nom_complet }}</td>
+            <td>{{ p.location.chambre.numero }}</td>
+            <td>{{ p.mois.strftime('%B %Y') }}</td>
+            <td>{{ p.date_echeance.strftime('%d/%m/%Y') }}</td>
+            <td>{{ p.montant }} FCFA</td>
+            <td><span class="keytag-badge badge-{{ p.statut }}">{{ p.statut.replace('_', ' ') }}</span></td>
+            <td class="actions-ligne">
+                {% if p.statut != "paye" %}
+                <a href="{{ url_for('paiements.payer', paiement_id=p.id) }}" class="btn-locagest">Encaisser</a>
+                {% else %}
+                <a href="{{ url_for('paiements.recu', paiement_id=p.id) }}" class="btn-outline-locagest">Voir reçu</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<p style="color:var(--texte-secondaire);">Aucun paiement pour ce filtre.</p>
+{% endif %}
+
+{% endif %}
+{% endblock %}
+
+{% block script %}
+{% if mode_paiement %}
+<script>
+(function() {
+    const loyer = {{ paiements[0].location.chambre.loyer_mensuel | float }};
+    const champMois = document.getElementById("mois_depart");
+    const champNombre = document.getElementById("nombre_mois");
+    const recapMois = document.getElementById("recap-mois");
+    const recapTotal = document.getElementById("recap-total");
+
+    const MOIS_FR = ["Janvier","Février","Mars","Avril","Mai","Juin",
+                     "Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+
+    function majRecap() {
+        const n = parseInt(champNombre.value) || 1;
+        const valMois = champMois.value;
+        if (!valMois) return;
+
+        const [annee, mois, ] = valMois.split("-").map(Number);
+        const lignes = [];
+        for (let i = 0; i < n; i++) {
+            const d = new Date(annee, mois - 1 + i, 1);
+            lignes.push(MOIS_FR[d.getMonth()] + " " + d.getFullYear());
+        }
+        recapMois.innerHTML = lignes.map(l => "• " + l).join("<br>");
+        recapTotal.textContent = (loyer * n).toLocaleString("fr-FR") + " FCFA";
+    }
+
+    champMois.addEventListener("change", majRecap);
+    champNombre.addEventListener("input", majRecap);
+    majRecap();
+})();
+</script>
+{% endif %}
+{% endblock %}

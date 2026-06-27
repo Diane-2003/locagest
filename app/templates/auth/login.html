@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titre %}Connexion{% endblock %}
+{% block contenu %}
+<div style="margin-top:3rem;">
+    <div class="form-card">
+        <h2 style="text-align:center; color:var(--orange-fonce);">🔑 LocaGest</h2>
+        <p style="text-align:center; color:var(--texte-secondaire); margin-bottom:1.5rem;">Connectez-vous à votre espace propriétaire</p>
+
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <label for="{{ form.email.id }}">{{ form.email.label.text }}</label>
+            {{ form.email(placeholder="vous@exemple.com") }}
+            {% for erreur in form.email.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+            <label for="{{ form.mot_de_passe.id }}">{{ form.mot_de_passe.label.text }}</label>
+            {{ form.mot_de_passe(placeholder="••••••••") }}
+            {% for erreur in form.mot_de_passe.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+            <div style="margin-top:1.5rem;">
+                {{ form.submit(class="btn-locagest", style="width:100%;") }}
+            </div>
+        </form>
+
+        <p style="text-align:center; margin-top:1.2rem; font-size:0.9rem;">
+            Pas encore de compte ? <a href="{{ url_for('auth.register') }}">Créer un compte</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

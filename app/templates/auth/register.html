@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titre %}Inscription{% endblock %}
+{% block contenu %}
+<div style="margin-top:3rem;">
+    <div class="form-card">
+        <h2 style="text-align:center; color:var(--orange-fonce);">Créer un compte propriétaire</h2>
+
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <label>{{ form.nom.label.text }}</label>
+            {{ form.nom(placeholder="Ex : Jean Mballa") }}
+            {% for erreur in form.nom.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+            <label>{{ form.email.label.text }}</label>
+            {{ form.email(placeholder="vous@exemple.com") }}
+            {% for erreur in form.email.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+            <label>{{ form.telephone.label.text }}</label>
+            {{ form.telephone(placeholder="6XX XXX XXX") }}
+
+            <label>{{ form.mot_de_passe.label.text }}</label>
+            {{ form.mot_de_passe(placeholder="6 caractères minimum") }}
+            {% for erreur in form.mot_de_passe.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+            <label>{{ form.confirmer_mot_de_passe.label.text }}</label>
+            {{ form.confirmer_mot_de_passe() }}
+            {% for erreur in form.confirmer_mot_de_passe.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+            <div style="margin-top:1.5rem;">
+                {{ form.submit(class="btn-locagest", style="width:100%;") }}
+            </div>
+        </form>
+
+        <p style="text-align:center; margin-top:1.2rem; font-size:0.9rem;">
+            Déjà un compte ? <a href="{{ url_for('auth.login') }}">Se connecter</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

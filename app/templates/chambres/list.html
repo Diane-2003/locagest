@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titre %}Chambres{% endblock %}
+{% block contenu %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <h1 style="color:var(--orange-fonce); margin:0;">Chambres</h1>
+    <a href="{{ url_for('chambres.ajouter_chambre') }}" class="btn-locagest">+ Ajouter une chambre</a>
+</div>
+
+<div style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('chambres.list_chambres') }}" class="btn-outline-locagest" style="{% if filtre=='toutes' %}background:var(--orange-pale);{% endif %}">Toutes</a>
+    <a href="{{ url_for('chambres.list_chambres', statut='disponible') }}" class="btn-outline-locagest" style="{% if filtre=='disponible' %}background:var(--orange-pale);{% endif %}">Disponibles</a>
+    <a href="{{ url_for('chambres.list_chambres', statut='occupee') }}" class="btn-outline-locagest" style="{% if filtre=='occupee' %}background:var(--orange-pale);{% endif %}">Occupées</a>
+</div>
+
+{% if chambres %}
+<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1rem;">
+    {% for chambre in chambres %}
+    <div class="keytag-card">
+        <div class="keytag-anneau"></div>
+        <div class="keytag-body">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="keytag-numero">Chambre {{ chambre.numero }}</span>
+                <span class="keytag-badge badge-{{ chambre.statut }}">
+                    {{ "Disponible" if chambre.statut == "disponible" else "Occupée" }}
+                </span>
+            </div>
+            <p style="color:var(--texte-secondaire); margin:0.4rem 0;">
+                {{ chambre.superficie }} m² &middot; {{ chambre.loyer_mensuel }} FCFA / mois
+            </p>
+            {% if chambre.description %}
+            <p style="font-size:0.85rem; color:var(--texte-secondaire);">{{ chambre.description }}</p>
+            {% endif %}
+            <div style="margin-top:0.8rem; display:flex; gap:0.5rem;">
+                <a href="{{ url_for('chambres.modifier_chambre', chambre_id=chambre.id) }}" class="btn-outline-locagest">Modifier</a>
+                <form method="POST" action="{{ url_for('chambres.supprimer_chambre', chambre_id=chambre.id) }}" data-confirm="Supprimer cette chambre ?">
+                    <button type="submit" class="btn-danger-locagest">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p style="color:var(--texte-secondaire);">Aucune chambre enregistrée pour ce filtre.</p>
+{% endif %}
+
+{% endblock %}

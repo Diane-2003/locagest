@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titre %}Reçu de paiement{% endblock %}
+{% block contenu %}
+
+<div class="recu-container">
+    <h2 style="text-align:center; color:var(--orange-fonce); margin-bottom:0;">LocaGest</h2>
+    <p style="text-align:center; color:var(--texte-secondaire); margin-top:0.2rem;">Reçu de paiement de loyer</p>
+    <hr style="border-color:var(--orange-pale);">
+
+    <table style="width:100%; font-size:0.95rem;">
+        <tr><td style="padding:0.4rem 0; color:var(--texte-secondaire);">N° de reçu</td><td style="text-align:right; font-weight:600;">{{ paiement.numero_recu }}</td></tr>
+        <tr><td style="padding:0.4rem 0; color:var(--texte-secondaire);">Locataire</td><td style="text-align:right; font-weight:600;">{{ paiement.location.locataire.nom_complet }}</td></tr>
+        <tr><td style="padding:0.4rem 0; color:var(--texte-secondaire);">Chambre</td><td style="text-align:right; font-weight:600;">{{ paiement.location.chambre.numero }}</td></tr>
+        <tr><td style="padding:0.4rem 0; color:var(--texte-secondaire);">Mois concerné</td><td style="text-align:right; font-weight:600;">{{ paiement.mois.strftime('%B %Y') }}</td></tr>
+        <tr><td style="padding:0.4rem 0; color:var(--texte-secondaire);">Date de paiement</td><td style="text-align:right; font-weight:600;">{{ paiement.date_paiement.strftime('%d/%m/%Y') }}</td></tr>
+        <tr><td style="padding:0.4rem 0; color:var(--texte-secondaire);">Mode de paiement</td><td style="text-align:right; font-weight:600;">{{ paiement.mode_paiement }}</td></tr>
+    </table>
+
+    <div style="background:var(--orange-pale); border-radius:10px; padding:1rem; margin:1.2rem 0; text-align:center;">
+        <div style="color:var(--texte-secondaire); font-size:0.85rem;">Montant payé</div>
+        <div style="font-size:1.8rem; font-weight:700; color:var(--orange-fonce);">{{ paiement.montant }} FCFA</div>
+    </div>
+
+    <p style="text-align:center; color:var(--texte-secondaire); font-size:0.8rem;">Reçu généré automatiquement par LocaGest</p>
+
+    <div class="no-print" style="text-align:center; margin-top:1.5rem;">
+        <button onclick="window.print()" class="btn-locagest"> Imprimer le reçu</button>
+        <a href="{{ url_for('paiements.list_paiements') }}" class="btn-outline-locagest">Retour</a>
+    </div>
+</div>
+
+{% endblock %}

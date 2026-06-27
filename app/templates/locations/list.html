@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block titre %}Locations{% endblock %}
+{% block contenu %}
+
+<div class="barre-actions">
+    <h1 style="color:var(--orange-fonce); margin:0;">Locations</h1>
+    <a href="{{ url_for('locations.ajouter_location') }}" class="btn-locagest">+ Attribuer une chambre</a>
+</div>
+
+{% if locations %}
+<div class="table-responsive">
+<table class="table-locagest">
+    <thead>
+        <tr><th>Locataire</th><th>Chambre</th><th>Début</th><th>Fin</th><th>Statut</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for location in locations %}
+        <tr>
+            <td>{{ location.locataire.nom_complet }}</td>
+            <td>{{ location.chambre.numero }}</td>
+            <td>{{ location.date_debut.strftime('%d/%m/%Y') }}</td>
+            <td>{{ location.date_fin.strftime('%d/%m/%Y') if location.date_fin else '—' }}</td>
+            <td><span class="keytag-badge badge-{{ location.statut }}">{{ "Active" if location.statut == "active" else "Terminée" }}</span></td>
+            <td class="actions-ligne">
+                {% if location.statut == "active" %}
+                <form method="POST" action="{{ url_for('paiements.generer_mois_suivant', location_id=location.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-outline-locagest">Générer paiement</button>
+                </form>
+                <form method="POST" action="{{ url_for('locations.resilier_location', location_id=location.id) }}" data-confirm="Résilier cette location ?">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn-danger-locagest">Résilier</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<p style="color:var(--texte-secondaire);">Aucune location enregistrée.</p>
+{% endif %}
+
+{% endblock %}

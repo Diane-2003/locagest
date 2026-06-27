@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titre %}{{ titre }}{% endblock %}
+{% block contenu %}
+
+<h1 style="color:var(--orange-fonce);">{{ titre }}</h1>
+
+<div class="form-card">
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <label>{{ form.nom.label.text }}</label>
+        {{ form.nom() }}
+        {% for erreur in form.nom.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+        <label>{{ form.prenom.label.text }}</label>
+        {{ form.prenom() }}
+        {% for erreur in form.prenom.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+        <label>{{ form.telephone.label.text }}</label>
+        {{ form.telephone(placeholder="6XX XXX XXX") }}
+        {% for erreur in form.telephone.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+        <label>{{ form.email.label.text }}</label>
+        {{ form.email() }}
+
+        <label>{{ form.cni.label.text }}</label>
+        {{ form.cni() }}
+        {% for erreur in form.cni.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+        <label>{{ form.adresse.label.text }}</label>
+        {{ form.adresse() }}
+
+        <div style="margin-top:1.5rem; display:flex; gap:0.6rem;">
+            {{ form.submit(class="btn-locagest") }}
+            <a href="{{ url_for('locataires.list_locataires') }}" class="btn-outline-locagest">Annuler</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

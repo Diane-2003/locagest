@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block titre %}Tableau de bord{% endblock %}
+{% block contenu %}
+
+<h1 style="color:var(--orange-fonce);">Tableau de bord</h1>
+<p style="color:var(--texte-secondaire);">Vue d'ensemble de votre activité au {{ aujourdhui.strftime('%d/%m/%Y') }}</p>
+
+<div class="grid-stats">
+    <div class="stat-card">
+        <div class="valeur">{{ total_chambres }}</div>
+        <div class="label">Chambres au total</div>
+    </div>
+    <div class="stat-card" style="border-left-color:var(--vert-succes);">
+        <div class="valeur" style="color:var(--vert-succes);">{{ chambres_disponibles }}</div>
+        <div class="label">Chambres disponibles</div>
+    </div>
+    <div class="stat-card" style="border-left-color:var(--rouge-alerte);">
+        <div class="valeur" style="color:var(--rouge-alerte);">{{ chambres_occupees }}</div>
+        <div class="label">Chambres occupées</div>
+    </div>
+    <div class="stat-card">
+        <div class="valeur">{{ total_locataires }}</div>
+        <div class="label">Locataires enregistrés</div>
+    </div>
+</div>
+
+<div class="grid-dashboard-cols">
+    <div>
+        <h3 style="color:var(--rouge-alerte);">Alertes : loyers en retard</h3>
+        {% if paiements_retard %}
+        <div class="table-responsive">
+        <table class="table-locagest">
+            <thead>
+                <tr><th>Locataire</th><th>Chambre</th><th>Mois</th><th>Échéance</th><th>Montant</th><th></th></tr>
+            </thead>
+            <tbody>
+                {% for p in paiements_retard %}
+                <tr class="ligne-retard">
+                    <td>{{ p.location.locataire.nom_complet }}</td>
+                    <td>{{ p.location.chambre.numero }}</td>
+                    <td>{{ p.mois.strftime('%B %Y') }}</td>
+                    <td>{{ p.date_echeance.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ p.montant }} FCFA</td>
+                    <td><a href="{{ url_for('paiements.payer', paiement_id=p.id) }}" class="btn-outline-locagest">Encaisser</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <p style="color:var(--texte-secondaire);">Aucun retard de paiement. 🎉</p>
+        {% endif %}
+    </div>
+
+    <div>
+        <h3 style="color:var(--orange-fonce);">Derniers paiements encaissés</h3>
+        {% if paiements_recents %}
+        <ul style="list-style:none; padding:0;">
+            {% for p in paiements_recents %}
+            <li class="stat-card" style="margin-bottom:0.8rem; border-left-color:var(--vert-succes);">
+                <strong>{{ p.location.locataire.nom_complet }}</strong> — Chambre {{ p.location.chambre.numero }}<br>
+                <span style="color:var(--texte-secondaire); font-size:0.85rem;">
+                    {{ p.montant }} FCFA le {{ p.date_paiement.strftime('%d/%m/%Y') }}
+                </span>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p style="color:var(--texte-secondaire);">Aucun paiement enregistré pour le moment.</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

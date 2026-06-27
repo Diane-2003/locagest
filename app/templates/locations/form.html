@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titre %}{{ titre }}{% endblock %}
+{% block contenu %}
+
+<h1 style="color:var(--orange-fonce);">{{ titre }}</h1>
+<p style="color:var(--texte-secondaire);">Un locataire peut occuper plusieurs chambres en même temps : choisissez simplement une chambre disponible.</p>
+
+<div class="form-card">
+    <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <label>{{ form.locataire_id.label.text }}</label>
+        {{ form.locataire_id() }}
+        {% for erreur in form.locataire_id.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+        <label>{{ form.chambre_id.label.text }}</label>
+        {{ form.chambre_id() }}
+        {% for erreur in form.chambre_id.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+        <label>{{ form.date_debut.label.text }}</label>
+        {{ form.date_debut() }}
+        {% for erreur in form.date_debut.errors %}<div class="erreur-champ">{{ erreur }}</div>{% endfor %}
+
+        <div style="margin-top:1.5rem; display:flex; gap:0.6rem;">
+            {{ form.submit(class="btn-locagest") }}
+            <a href="{{ url_for('locations.list_locations') }}" class="btn-outline-locagest">Annuler</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

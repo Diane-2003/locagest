@@ -1,0 +1,129 @@
+{% extends "base.html" %} {% block titre %}Locataires{% endblock %} {% block
+contenu %} {% if mode_historique %} {% set locataire = locataires[0] %}
+<h1 style="color: var(--orange-fonce)">
+  Historique de {{ locataire.nom_complet }}
+</h1>
+<p style="color: var(--texte-secondaire)">
+  {{ locataire.telephone }} &middot; CNI : {{ locataire.cni }}
+</p>
+
+{% if historique %}
+<div class="table-responsive">
+  <table class="table-locagest">
+    <thead>
+      <tr>
+        <th>Mois</th>
+        <th>Chambre</th>
+        <th>Échéance</th>
+        <th>Montant</th>
+        <th>Statut</th>
+        <th>Date de paiement</th>
+        <th>Reçu</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in historique %}
+      <tr class="{{ 'ligne-retard' if p.est_en_retard else '' }}">
+        <td>{{ p.mois.strftime('%B %Y') }}</td>
+        <td>{{ p.location.chambre.numero }}</td>
+        <td>{{ p.date_echeance.strftime('%d/%m/%Y') }}</td>
+        <td>{{ p.montant }} FCFA</td>
+        <td>
+          <span class="keytag-badge badge-{{ p.statut }}"
+            >{{ p.statut.replace('_', ' ') }}</span
+          >
+        </td>
+        <td>
+          {{ p.date_paiement.strftime('%d/%m/%Y') if p.date_paiement else '—' }}
+        </td>
+        <td>
+          {% if p.statut == 'paye' %}
+          <a
+            href="{{ url_for('paiements.recu', paiement_id=p.id) }}"
+            class="btn-outline-locagest"
+            style="font-size: 0.82rem; padding: 0.3rem 0.7rem"
+          >
+            Reçu
+          </a>
+          {% else %}
+          <span style="color: var(--texte-secondaire); font-size: 0.82rem"
+            >—</span
+          >
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p style="color: var(--texte-secondaire)">
+  Aucun paiement enregistré pour ce locataire.
+</p>
+{% endif %}
+
+<a
+  href="{{ url_for('locataires.list_locataires') }}"
+  class="btn-outline-locagest"
+  style="margin-top: 1.5rem; display: inline-block"
+  >← Retour à la liste</a
+>
+{% else %}
+
+<div class="barre-actions">
+  <h1 style="color: var(--orange-fonce); margin: 0">Locataires</h1>
+  <a href="{{ url_for('locataires.ajouter_locataire') }}" class="btn-locagest"
+    >+ Ajouter un locataire</a
+  >
+</div>
+
+{% if locataires %}
+<div class="table-responsive">
+  <table class="table-locagest">
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Téléphone</th>
+        <th>CNI</th>
+        <th>Chambres occupées</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for locataire in locataires %}
+      <tr>
+        <td>{{ locataire.nom_complet }}</td>
+        <td>{{ locataire.telephone }}</td>
+        <td>{{ locataire.cni }}</td>
+        <td>{{ locataire.nombre_chambres_occupees }}</td>
+        <td class="actions-ligne">
+          <a
+            href="{{ url_for('locataires.historique_locataire', locataire_id=locataire.id) }}"
+            class="btn-outline-locagest"
+            >Historique</a
+          >
+          <a
+            href="{{ url_for('locataires.modifier_locataire', locataire_id=locataire.id) }}"
+            class="btn-outline-locagest"
+            >Modifier</a
+          >
+          <form
+            method="POST"
+            action="{{ url_for('locataires.supprimer_locataire', locataire_id=locataire.id) }}"
+            data-confirm="Supprimer ce locataire ?">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <button type="submit" class="btn-danger-locagest">
+                Supprimer
+            </button>
+        </form>     
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p style="color: var(--texte-secondaire)">Aucun locataire enregistré.</p>
+{% endif %} {% endif %} {% endblock %}

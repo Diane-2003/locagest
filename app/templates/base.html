@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block titre %}LocaGest{% endblock %} - LocaGest</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    {% if current_user.is_authenticated %}
+    <nav class="navbar-locagest">
+      <div class="navbar-inner">
+        <div class="navbar-brand-row">
+          <span class="brand"> LocaGest</span>
+          <button
+            class="hamburger"
+            id="hamburger"
+            aria-label="Menu"
+            aria-expanded="false"
+          >
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+        <div class="navbar-menu" id="navbar-menu">
+          <div class="nav-links">
+            <a
+              class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('dashboard') }}"
+              href="{{ url_for('dashboard.index') }}"
+              >Tableau de bord</a
+            >
+            <a
+              class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('chambres') }}"
+              href="{{ url_for('chambres.list_chambres') }}"
+              >Chambres</a
+            >
+            <a
+              class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('locataires') }}"
+              href="{{ url_for('locataires.list_locataires') }}"
+              >Locataires</a
+            >
+            <a
+              class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('locations') }}"
+              href="{{ url_for('locations.list_locations') }}"
+              >Locations</a
+            >
+            <a
+              class="nav-link {{ 'active' if request.endpoint and request.endpoint.startswith('paiements') }}"
+              href="{{ url_for('paiements.list_paiements') }}"
+              >Paiements</a
+            >
+          </div>
+          <div class="nav-user">
+            <span style="color: var(--texte-secondaire); font-size: 0.9rem"
+              >{{ current_user.nom }}</span
+            >
+            <a class="btn-outline-locagest" href="{{ url_for('auth.logout') }}"
+              >Déconnexion</a
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+    {% endif %}
+
+    <div class="page-container">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="alerte alerte-{{ category }}">{{ message }}</div>
+      {% endfor %} {% endif %} {% endwith %} {% block contenu %}{% endblock %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block script %}{% endblock %}
+  </body>
+</html>
